@@ -9,51 +9,48 @@ import java.util.regex.Matcher;
 @Service
 public class SensitiveDataClassifier {
 
+    private final EntropyCalculator entropyCalculator;
+
+    public SensitiveDataClassifier(EntropyCalculator entropyCalculator) {
+        this.entropyCalculator = entropyCalculator;
+    }
+
     private static final Pattern AADHAAR = Pattern.compile(
             "\\b[0-9]{4}\\s?[0-9]{4}\\s?[0-9]{4}\\b"
     );
 
-    // PAN card — 5 letters + 4 digits + 1 letter
     private static final Pattern PAN = Pattern.compile(
             "\\b[A-Z]{5}[0-9]{4}[A-Z]{1}\\b"
     );
 
-    // Credit card — 13 to 16 digits
     private static final Pattern CREDIT_CARD = Pattern.compile(
             "\\b(?:\\d[ -]?){13,16}\\b"
     );
 
-    // API key — high entropy strings starting with common prefixes
     private static final Pattern API_KEY = Pattern.compile(
             "\\b(sk-|ghp_|AIza|Bearer\\s)[A-Za-z0-9_\\-]{20,}\\b"
     );
 
-    // Email address
     private static final Pattern EMAIL = Pattern.compile(
             "\\b[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}\\b"
     );
 
-    // Indian mobile number — 10 digits starting with 6-9
     private static final Pattern MOBILE = Pattern.compile(
             "\\b[6-9][0-9]{9}\\b"
     );
 
-    // UPI ID
     private static final Pattern UPI = Pattern.compile(
-            "\\b[a-zA-Z0-9.\\-_]{2,256}@[a-zA-Z]{2,64}\\b"
+            "\\b[a-zA-Z0-9.\\-_]{2,256}@(okaxis|okhdfcbank|okicici|oksbi|ybl|ibl|axl|waicici|paytm|apl|upi)\\b"
     );
 
-    // Password in plain text
     private static final Pattern PASSWORD = Pattern.compile(
             "(?i)(password|passwd|pwd|secret)\\s*[:=]\\s*\\S+"
     );
 
-    // Database connection string
     private static final Pattern DB_CONNECTION = Pattern.compile(
             "(?i)(jdbc:|mongodb://|mysql://|postgres://|redis://)\\S+"
     );
 
-    // Source code indicators
     private static final Pattern SOURCE_CODE = Pattern.compile(
             "(?i)(private\\s+key|BEGIN RSA|import\\s+os|def\\s+\\w+\\(|function\\s+\\w+\\()"
     );
@@ -103,6 +100,15 @@ public class SensitiveDataClassifier {
             score += 30;
         }
 
+        // Entropy check — detect random strings like API keys
+        for (String word : text.split("\\s+")) {
+            if (entropyCalculator.isHighEntropy(word)) {
+                reasons.add("High entropy string detected — possible API key or secret");
+                score += 40;
+                break;
+            }
+        }
+
         score = Math.min(score, 100);
 
         String verdict;
@@ -126,7 +132,6 @@ public class SensitiveDataClassifier {
         return matcher.find();
     }
 
-    // Inner class to hold result
     public static class ClassificationResult {
         private final int score;
         private final String verdict;

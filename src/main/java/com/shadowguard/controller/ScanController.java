@@ -34,6 +34,7 @@ import com.shadowguard.model.Alert;
 import com.shadowguard.model.ScanRequest;
 import com.shadowguard.model.ScanResult;
 import com.shadowguard.service.AlertRepository;
+import com.shadowguard.service.Masking;
 import com.shadowguard.service.SensitiveDataClassifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +46,8 @@ import java.util.List;
 public class ScanController {
 
     @Autowired
+    private Masking masking;
+    @Autowired
     private SensitiveDataClassifier classifier;
 
     @Autowired
@@ -54,6 +57,8 @@ public class ScanController {
     public ScanResult scan(@RequestBody ScanRequest request) {
         SensitiveDataClassifier.ClassificationResult result =
                 classifier.classify(request.getText());
+
+        String mask = masking.masktext(request.getText());  // new
 
         Alert alert = new Alert(
                 request.getText(),
@@ -67,8 +72,11 @@ public class ScanController {
                 request.getText(),
                 result.getScore(),
                 result.getVerdict(),
-                result.getReasons()
+                result.getReasons(),
+                mask // new
         );
+
+
     }
 
     @GetMapping("/alerts")

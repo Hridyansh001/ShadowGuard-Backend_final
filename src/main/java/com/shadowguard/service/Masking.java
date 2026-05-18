@@ -7,9 +7,9 @@ public class Masking {
 
     public String masktext(String text)
     {
-        text = text.replaceAll("\\b(sk-|ghp_|AIza|Bearer\\s)[A-Za-z0-9_\\-]{20,}\\b" , "$1 ************"); //api
+        text = text.replaceAll("\\b(sk-|ghp_|AIza|Bearer\\s)[A-Za-z0-9_\\-]{20,}\\b" , "$1************"); //api
 
-        text = text.replaceAll("b[0-9]{4}\\s?[0-9]{4}\\s?[0-9]{4}\b", "******");  //aadhaar
+        text = text.replaceAll("\\b[0-9]{4}\\s?[0-9]{4}\\s?[0-9]{4}\\b", "******");  //aadhaar
 
         text = text.replaceAll("\\b(?:\\d[ -]?){13,16}\\b", "**** **** ****");   //credit card
 

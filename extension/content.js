@@ -412,8 +412,13 @@ function detectInput() {
 
       });
 
-    }, 1000);
+    }, 200);
   }
 }
+setInterval(detectInput, 300);
 
-setInterval(detectInput, 1000);
+document.addEventListener("input", () => {
+
+  detectInput();
+
+});

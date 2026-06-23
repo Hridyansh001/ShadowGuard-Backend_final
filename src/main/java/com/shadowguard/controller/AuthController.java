@@ -13,7 +13,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = "*")
-public class AuthController {
+public class AuthController { 
 
     @Autowired
     private UserRepository userRepository;
@@ -41,7 +41,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
         String email = body.get("email");
-        String password = body.get("password");
+        String password = body.get("password"); 
 
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {

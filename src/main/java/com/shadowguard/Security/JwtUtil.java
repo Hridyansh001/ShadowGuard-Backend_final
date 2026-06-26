@@ -2,10 +2,13 @@ package com.shadowguard.Security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+//import org.apache.poi.hpsf.Section;
 import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
+
+import javax.crypto.SecretKey;
 
 
 @Component
@@ -20,36 +23,65 @@ public class JwtUtil {
     
     private static final long EXPIRATION = 1000 * 60 * 60 * 24;
 
-    public String generateToken(String email) {
+//    public String generateToken(String email) {
+//        return Jwts.builder()
+//                .setSubject(email)
+//                .setIssuedAt(new Date())
+//                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+//                .signWith(getKey())
+//                .compact();
+//    }
+    public String generateToken(String email){
         return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .subject(email)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis()+EXPIRATION))
                 .signWith(getKey())
                 .compact();
     }
-
-    public String extractEmail(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getKey())
+    public String extractEmail(String token)
+    {
+        return Jwts.parser()
+                .verifyWith((SecretKey)getKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getSubject();
     }
-
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getKey())
+    public boolean validateToken(String token)
+    {
+        try{
+            Jwts.parser()
+                    .verifyWith((SecretKey) getKey())
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (JwtException e) {
             return false;
         }
     }
 }
+//    public String extractEmail(String token) {
+//        return Jwts.parserBuilder()
+//                .setSigningKey(getKey())
+//                .build()
+//                .parseClaimsJws(token)
+//                .getBody()
+//                .getSubject();
+//    }
+
+//    public boolean validateToken(String token) {
+//        try {
+//            Jwts.parserBuilder()
+//                    .setSigningKey(getKey())
+//                    .build()
+//                    .parseClaimsJws(token);
+//            return true;
+//        } catch (JwtException e) {
+//            return false;
+//        }
+//    }
+//}
 // @Component
 // public class JwtUtil {
 

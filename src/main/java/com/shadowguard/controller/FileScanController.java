@@ -37,10 +37,10 @@ public class FileScanController {
 
         String maskedText = masking.masktext(text);
 
-       if( !result.getVerdict().equals("SAFE")) {
-           Alert alert = new Alert(maskedText, result.getScore(), result.getVerdict(), result.getReasons());
-           alertRepository.save(alert);
-       }
+        if( !result.getVerdict().equals("SAFE")) {
+            Alert alert = new Alert(maskedText, result.getScore(), result.getVerdict(), result.getReasons());
+            alertRepository.save(alert);
+        }
         return  new ScanResult(
                 maskedText,
 

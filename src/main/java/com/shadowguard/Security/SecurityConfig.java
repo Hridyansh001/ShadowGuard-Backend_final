@@ -111,6 +111,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/scan").permitAll()
                         .requestMatchers("api/scan/file").permitAll()
+                        .requestMatchers("api/scan/image").permitAll()
                        // .requestMatchers("/api/alerts").permitAll()
                         .anyRequest().authenticated()
                 )

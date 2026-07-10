@@ -36,11 +36,11 @@ public class AuthController {
         String secret = body.get("adminSecret");
 
         if (!adminSecret.equals(secret)) {
-            return ResponseEntity.badRequest().body("Invalid administrator registration key");
+            return ResponseEntity.badRequest().body(Map.of("message","Invalid administrator registration key"));
         }
 
         if (userRepository.findByEmail(email).isPresent()) {
-            return ResponseEntity.badRequest().body("Email already exists");
+            return ResponseEntity.badRequest().body(Map.of("message","Email already exists"));
         }
 
         User user = new User();
@@ -52,7 +52,7 @@ public class AuthController {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok("Administrator registered successfully");
+        return ResponseEntity.ok(Map.of("message","Administrator registered successfully"));
     }
 
     @PostMapping("/login")
@@ -62,11 +62,11 @@ public class AuthController {
 
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("User not found");
+            return ResponseEntity.badRequest().body(Map.of("message","User not found"));
         }
 
         if (!passwordEncoder.matches(password, userOpt.get().getPassword())) {
-            return ResponseEntity.badRequest().body("Invalid password");
+            return ResponseEntity.badRequest().body(Map.of("message","Invalid password"));
         }
 
         String token = jwtUtil.generateToken(email);

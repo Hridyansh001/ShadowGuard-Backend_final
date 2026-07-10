@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Value;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,18 +25,34 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Value("${shadowguard.admin.secret}")
+    private String adminSecret;
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
+
+        String name = body.get("name");
         String email = body.get("email");
         String password = body.get("password");
+        String secret = body.get("adminSecret");
+
+        if (!adminSecret.equals(secret)) {
+            return ResponseEntity.badRequest().body("Invalid administrator registration key");
+        }
 
         if (userRepository.findByEmail(email).isPresent()) {
             return ResponseEntity.badRequest().body("Email already exists");
         }
 
-        User user = new User(email, passwordEncoder.encode(password));
+        User user = new User();
+
+        user.setName(name);
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setRole("ADMIN");
+
         userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully");
+
+        return ResponseEntity.ok("Administrator registered successfully");
     }
 
     @PostMapping("/login")

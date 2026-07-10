@@ -1,6 +1,8 @@
 package com.shadowguard.service;
 
 import org.springframework.stereotype.Service;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class EntropyCalculator {
@@ -8,19 +10,17 @@ public class EntropyCalculator {
     public double calculate(String text) {
         if (text == null || text.isEmpty()) return 0;
 
-        int[] frequency = new int[256];
+        Map<Character, Integer> frequency = new HashMap<>();
         for (char c : text.toCharArray()) {
-            frequency[c]++;
+            frequency.put(c, frequency.getOrDefault(c, 0) + 1);
         }
 
         double entropy = 0;
         int length = text.length();
 
-        for (int count : frequency) {
-            if (count > 0) {
-                double probability = (double) count / length;
-                entropy -= probability * (Math.log(probability) / Math.log(2));
-            }
+        for (int count : frequency.values()) {
+            double probability = (double) count / length;
+            entropy -= probability * (Math.log(probability) / Math.log(2));
         }
 
         return entropy;
